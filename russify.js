@@ -232,6 +232,36 @@ const M4_REP = `function m4(e,t){let n=t?.startsWith(\`zh\`)??!1,r=n?e.cn:e.en,i
   }
 }
 
+// Suggested tasks (client scenes) are {cn, en}. The English UI locale is the
+// Russian slot, so the English side is translated when it matches this list.
+const suggestedEn = {
+  'Weekly Summary': 'Итоги недели',
+  'Error Fix': 'Исправление ошибки',
+  'PPT Creation': 'Создание презентации',
+  'Idle-time task': 'Задача простоя',
+  'Document Skills': 'Навыки для документов',
+  'Referencing plugins': 'Подключаемые плагины',
+  'Recommended Prompts': 'Рекомендуемые подсказки',
+  'Summarize the events of the week every Friday.': 'Каждую пятницу подводи итоги недели.',
+  'Please analyze the following terminal error log, find the root cause of the error, and provide a sample of fix code that can be run directly.': 'Проанализируй журнал ошибки из терминала, найди причину и дай пример исправления, который можно сразу запустить.',
+  'Please create a PowerPoint presentation for me on the topic "The Evolution of AI Agents," covering three stages: Prompt Engineering (origins, core techniques, limitations) → Context Engineering (why context is important, key technologies such as RAG/Memory/Tool Use) → Harness Engineering (agent framework evolution, representative products such as AutoGPT/ACPAgent/OpenClaw). The style should be tech-oriented, with a dark background, and a timeline should be clearly presented.': 'Сделай презентацию на тему «Эволюция AI-агентов». Три этапа: Prompt Engineering (истоки, основные приёмы, ограничения) → Context Engineering (почему контекст важнее, технологии RAG/Memory/Tool Use) → Harness Engineering (эволюция агентных фреймворков, примеры AutoGPT/ACPAgent/OpenClaw). Стиль технический, тёмный фон, с понятной временной шкалой.',
+  'Create Idle-time task': 'Создай задачу простоя',
+};
+{
+  const yre = /function ([A-Za-z0-9_$]+)\(e,t\)\{let ([A-Za-z0-9_$]+)=t\.startsWith\(`zh`\)\?e\.cn:e\.en,([A-Za-z0-9_$]+)=t\.startsWith\(`zh`\)\?e\.en:e\.cn;return \2\?\.trim\(\)\|\|\3\?\.trim\(\)\|\|``\}/;
+  const ym = stylesText.match(yre);
+  if (stylesText.includes('"Итоги недели"')) {
+    console.log('Предложенные задачи: перевод уже стоит');
+  } else if (ym) {
+    const mapJson = JSON.stringify(suggestedEn);
+    const patched = 'function ' + ym[1] + '(e,t){let ' + ym[2] + '=t.startsWith(`zh`)?e.cn:e.en,' + ym[3] + '=t.startsWith(`zh`)?e.en:e.cn;if(!t.startsWith(`zh`)&&' + ym[2] + '){let _x=' + ym[2] + '.trim();let _m=' + mapJson + ';if(_m[_x])return _m[_x]}return ' + ym[2] + '?.trim()||' + ym[3] + '?.trim()||``}';
+    stylesText = stylesText.replace(ym[0], patched);
+    console.log('Предложенные задачи: переведены (' + Object.keys(suggestedEn).length + ' строк, функция ' + ym[1] + ')');
+  } else {
+    console.log('Предложенные задачи: функция выбора языка не найдена');
+  }
+}
+
 // ---------- server-driven campaign popups (Entitlement Rules etc.) ----------
 // The popup text comes from the Z.ai API already localized (zh-CN/en-US only);
 // patch the marketing-touch store to map known English strings to Russian
