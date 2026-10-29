@@ -1,6 +1,8 @@
 # ZCode по-русски для Linux
 
-Неофициальный установщик русского интерфейса [ZCode Desktop](https://zcode.z.ai) на Linux.
+Неофициальный установщик русского интерфейса [ZCode Desktop](https://zcode.z.ai) на Linux. Это открытый Linux-патч: исходный словарь интерфейса взят из открытого Windows-русификатора [xISPx/ZCode_Russifier](https://github.com/xISPx/ZCode_Russifier) (MIT) и дополнен строками версии 3.16.3.
+
+OpenCode Desktop — другое приложение. В его официальной сборке русский язык уже есть, этот репозиторий OpenCode не меняет.
 
 Официальное приложение поставляется как AppImage и знает только английский и китайский. Архив внутри AppImage нельзя изменить, пока программа из него запущена. Этот установщик распаковывает AppImage и подменяет английский каталог русским текстом.
 
@@ -61,7 +63,7 @@ sudo chmod 4755 ~/.local/share/ZCode/squashfs-root/chrome-sandbox
 
 ## English
 
-Unofficial Russian UI installer for the ZCode Desktop AppImage on Linux. It unpacks the AppImage, replaces the English string catalog with Russian, and can restore the saved `app.asar`. The dictionary comes from [xISPx/ZCode_Russifier](https://github.com/xISPx/ZCode_Russifier) (MIT) plus the 3.16.3 strings added in this repository. The tray tooltip stays `ZCode`.
+Unofficial public Linux patch for the Russian ZCode Desktop UI. It unpacks the AppImage, replaces the English string catalog with Russian, and can restore the saved `app.asar`. The dictionary comes from the open-source Windows patch [xISPx/ZCode_Russifier](https://github.com/xISPx/ZCode_Russifier) (MIT) plus the 3.16.3 strings added here. OpenCode Desktop is a different app and already ships its own Russian locale; this repository does not patch it. The tray tooltip stays `ZCode`.
 
 ```bash
 git clone https://github.com/plesnev-hash/zcode-ru-linux.git
