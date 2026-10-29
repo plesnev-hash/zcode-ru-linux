@@ -1,0 +1,17 @@
+{
+  "remote.error.authenticationUnsupported": "Сервер запрашивает дополнительную проверку",
+  "remote.error.authenticationUnsupported.reason": "После пароля этот сервер запрашивает ещё одну проверку (например, одноразовый код). Поддерживаются только пароль, закрытый ключ и SSH-агент. Используйте закрытый ключ.",
+  "remote.error.platformUnsupported": "Система этого устройства не поддерживается",
+  "remote.error.platformUnsupported.reason": "Удалённое подключение поддерживает Linux и macOS на x64 и arm64. В Windows подключайтесь через WSL или используйте устройство с Linux.",
+  "remote.error.workspaceDirectoryUnresponsive": "Удалённое устройство не ответило 30 секунд при чтении папки проекта",
+  "remote.error.workspaceDirectoryUnresponsive.reason": "Если удалённое устройство — Mac, проверьте на нём запрос доступа к папке. Если папка на сетевом или внешнем диске, убедитесь, что диск доступен. Затем повторите попытку.",
+  "login.oauth.browserNotOpened": "Браузер не открылся?",
+  "login.oauth.copyLoginLink": "Скопировать ссылку для входа",
+  "login.oauth.copyLinkSuccess": "Скопировано. Вставьте её в браузер и откройте.",
+  "login.oauth.copyLinkFailed": "Не удалось скопировать ссылку для входа. Попробуйте ещё раз.",
+  "workspaceHeader.help.copyDeviceMid": "Скопировать MID устройства",
+  "workspaceHeader.help.deviceMidCopied": "MID устройства скопирован",
+  "workspaceHeader.help.deviceMidCopyFailed": "Не удалось скопировать MID устройства. Проверьте доступ к буферу обмена и попробуйте ещё раз.",
+  "remote.phase.workspace": "Открыть папку проекта",
+  "remote.phaseSub.workspaceReading": "Чтение {path}"
+}

@@ -1,0 +1,3 @@
+*.asar
+*.asar.ru-orig
+squashfs-root/
