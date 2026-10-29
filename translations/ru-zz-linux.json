@@ -13,5 +13,15 @@
   "workspaceHeader.help.deviceMidCopied": "MID устройства скопирован",
   "workspaceHeader.help.deviceMidCopyFailed": "Не удалось скопировать MID устройства. Проверьте доступ к буферу обмена и попробуйте ещё раз.",
   "remote.phase.workspace": "Открыть папку проекта",
-  "remote.phaseSub.workspaceReading": "Чтение {path}"
+  "remote.phaseSub.workspaceReading": "Чтение {path}",
+  "browser.permission.denyThisTime": "Не разрешать в этот раз",
+  "settings.skills.diagnostics.code.skill_missing_name": "В frontmatter нет поля name",
+  "settings.skills.diagnostics.code.skill_invalid_name": "Поле name не соответствует формату (строчные буквы, цифры, дефис)",
+  "settings.skills.diagnostics.code.skill_missing_description": "В frontmatter нет поля description",
+  "settings.skills.diagnostics.code.skill_description_too_long": "description длиннее 1024 символов",
+  "zcode.error.modelSuspiciousEmpty": "Модель ничего не вернула.",
+  "manualClaimPlan.claim.failure.captcha": "Проверка капчи не пройдена, попробуйте ещё раз.",
+  "chat.error.action.retryCaptcha": "Повторить капчу",
+  "chat.captcha.verifyFailed": "Проверка капчи не пройдена, попробуйте ещё раз.",
+  "zcode.error.providerBusiness.3007": "Проверка капчи не пройдена, попробуйте ещё раз."
 }

@@ -131,8 +131,8 @@ const os = require('os');
 const file = path.join(os.homedir(), '.zcode/v2/setting.json');
 if (!fs.existsSync(file)) process.exit(0);
 const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-data.locale = 'en-US';
-data.localePreference = 'en-US';
+data.locale = 'zh-CN';
+data.localePreference = 'zh-CN';
 const raw = fs.readFileSync(file, 'utf8');
 const pretty = raw.includes('\n');
 const text = pretty ? JSON.stringify(data, null, 2) : JSON.stringify(data);
@@ -182,8 +182,7 @@ install_from() {
   printf 'zcode-ru-linux\n' > "${DEST}/resources/${MARKER_NAME}"
   set_locale
   write_desktop
-  printf 'Готово. Язык интерфейса — русский (в настройках ZCode это каталог English).\n'
-  printf 'Китайский язык в настройках вернёт китайский интерфейс.\n'
+  printf 'Готово. Английский язык снова английский. Русский стоит на месте китайского и в списке называется «Русский».\n'
   if ! sandbox_ready && userns_restricted; then
     printf 'Песочница Electron на этой системе закрыта. Ярлык запускает ZCode с --no-sandbox.\n'
     printf 'Чтобы убрать этот флаг: sudo chown root:root "%s/chrome-sandbox" && sudo chmod 4755 "%s/chrome-sandbox"\n' "$DEST" "$DEST"
