@@ -2,7 +2,7 @@
 
 Неофициальный установщик русского интерфейса [ZCode Desktop](https://zcode.z.ai) на Linux.
 
-Официальное приложение поставляется как AppImage и знает только английский и китайский. Архив внутри AppImage нельзя изменить, пока программа из него запущена. Этот установщик распаковывает AppImage, оставляет английский каталог английским и записывает русский текст вместо китайского. В списке языков бывший пункт «中文简体» называется «Русский».
+Официальное приложение поставляется как AppImage и знает только английский и китайский. Архив внутри AppImage нельзя изменить, пока программа из него запущена. Этот установщик распаковывает AppImage и подменяет английский каталог русским текстом.
 
 Проверено на ZCode **3.16.3** (Linux x64) и Ubuntu 26.04. Скрипт ищет строки по структуре каталога, поэтому часто подходит и к соседней версии. Если сборка изменилась, он останавливается и не записывает повреждённый архив.
 
@@ -28,9 +28,8 @@ chmod +x install.sh
 
 - находит AppImage или каталог `squashfs-root`;
 - один раз сохраняет исходный `resources/app.asar` как `app.asar.ru-orig`;
-- записывает русский текст в китайский каталог: интерфейс, меню и шаблоны автоматизаций;
-- английский каталог не переводит;
-- в настройках ZCode выбирает бывший китайский пункт, теперь «Русский»;
+- записывает русский текст в английский каталог: интерфейс, меню, диалоги и шаблоны автоматизаций;
+- в настройках ZCode ставит язык `en-US` — в этом каталоге теперь русский текст;
 - создаёт команду `~/.local/bin/zcode` и пункт меню.
 
 После обновления ZCode запустите `./install.sh` ещё раз.
@@ -45,9 +44,11 @@ chmod +x install.sh
 
 ## Что переведено
 
-Словарь интерфейса основан на [xISPx/ZCode_Russifier](https://github.com/xISPx/ZCode_Russifier) (MIT). Для 3.16.3 добавлены строки, которых в том словаре не было: вход по ссылке, MID устройства, сообщения удалённого подключения и несколько фраз, которые были только в китайском каталоге.
+Словарь интерфейса основан на [xISPx/ZCode_Russifier](https://github.com/xISPx/ZCode_Russifier) (MIT). Для 3.16.3 добавлены 15 строк, которых в том словаре не было: вход по ссылке, MID устройства и новые сообщения удалённого подключения.
 
-Подсказка в трее остаётся `ZCode`: это название программы. Служебные промпты, которые уходят модели, не переводятся. Несколько коротких системных диалогов в коде программы остаются английскими, чтобы пункт English не становился частично русским.
+Подсказка в трее остаётся `ZCode`: это название программы. Служебные промпты, которые уходят модели, не переводятся.
+
+В настройках выбран английский каталог. Пункт китайского языка по-прежнему показывает китайский интерфейс.
 
 ## Песочница
 
@@ -60,7 +61,7 @@ sudo chmod 4755 ~/.local/share/ZCode/squashfs-root/chrome-sandbox
 
 ## English
 
-Unofficial Russian UI installer for the ZCode Desktop AppImage on Linux. It unpacks the AppImage, keeps English as English, and writes Russian into the Chinese catalog. The old 中文简体 entry is labeled Русский. The dictionary comes from [xISPx/ZCode_Russifier](https://github.com/xISPx/ZCode_Russifier) (MIT) plus the 3.16.3 strings added in this repository. The tray tooltip stays `ZCode`.
+Unofficial Russian UI installer for the ZCode Desktop AppImage on Linux. It unpacks the AppImage, replaces the English string catalog with Russian, and can restore the saved `app.asar`. The dictionary comes from [xISPx/ZCode_Russifier](https://github.com/xISPx/ZCode_Russifier) (MIT) plus the 3.16.3 strings added in this repository. The tray tooltip stays `ZCode`.
 
 ```bash
 git clone https://github.com/plesnev-hash/zcode-ru-linux.git

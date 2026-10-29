@@ -5,8 +5,7 @@
  * The engine matches the MIT patch from xISPx/ZCode_Russifier. This copy
  * looks for a Linux install directory and loads the extra 3.16.3 strings
  * from translations/ru-zz-linux.json. The app ships en-US and zh-CN only;
- * Russian text replaces the zh-CN catalogs. en-US stays English.
- * The former Chinese language entry is labeled Русский.
+ * Russian text replaces the en-US catalogs.
  *
  * Usage:   node russify.js [path-to-unpacked-ZCode]
  * Default: ~/.local/share/ZCode/squashfs-root
@@ -128,18 +127,14 @@ const mainChunk = '/out/main/index.js';
 console.log('Чанки: ' + intlChunk + ', ' + menuChunk + ', ' + mainChunk);
 
 // ---------- renderer catalog ----------
-// English stays English. Russian occupies the zh-CN catalog. The language
-// menu entry that used to say 中文简体 is renamed in both catalogs.
-let catSrc = readFile(intlChunk).toString('utf8');
-catSrc = catSrc
-  .replaceAll('"settings.locale.zh-CN":`中文简体`', '"settings.locale.zh-CN":`Русский`')
-  .replaceAll('"sidebar.settings.locale.zh-CN":`中文简体`', '"sidebar.settings.locale.zh-CN":`Русский`');
-const gMap = catSrc.match(/=\{"zh-CN":([A-Za-z0-9_$]+),"en-US":[A-Za-z0-9_$]+\}/);
+const catSrc = readFile(intlChunk).toString('utf8');
+// locate the locale map  g={"zh-CN":p,"en-US":m}  and resolve the en-US catalog variable
+const gMap = catSrc.match(/=\{"zh-CN":[A-Za-z0-9_$]+,"en-US":([A-Za-z0-9_$]+)\}/);
 if (!gMap) { console.error('Не найден каталог локалей в рендерере.'); process.exit(1); }
-const zhName = gMap[1];
-const assignIdx = catSrc.lastIndexOf(zhName + '={', gMap.index);
+const enName = gMap[1];
+const assignIdx = catSrc.lastIndexOf(enName + '={', gMap.index);
 if (assignIdx === -1 || !',;( '.includes(catSrc[assignIdx - 1])) {
-  console.error('Не найден объект каталога zh-CN.'); process.exit(1);
+  console.error('Не найден объект каталога en-US.'); process.exit(1);
 }
 function findObjEnd(text, openIdx) {
   let depth = 0, i = openIdx, inTpl = false, inStr = false, strCh = '';
@@ -156,31 +151,18 @@ function findObjEnd(text, openIdx) {
   }
   return -1;
 }
-const openIdx = assignIdx + zhName.length + 1; // the '{' of the zh-CN catalog object
+const openIdx = assignIdx + enName.length + 1; // the '{' of the en-US catalog object
 const closeIdx = findObjEnd(catSrc, openIdx);
 if (closeIdx === -1) { console.error('Не удалось определить границы каталога.'); process.exit(1); }
 const mObjText = catSrc.slice(openIdx + 1, closeIdx);
 const entryRe = /"([^"]+)":`([\s\S]*?)`(?=[,\}]|$)/g;
-const zhValues = {};
-for (const m of mObjText.matchAll(entryRe)) zhValues[m[1]] = m[2];
+const enValues = {};
+for (const m of mObjText.matchAll(entryRe)) enValues[m[1]] = m[2];
 
 function tokens(s) { return (s.match(/\{[A-Za-z0-9_.]+\}/g) || []).sort().join(','); }
-// These names must not follow the dictionary: the dictionary still calls the
-// English slot «Русский» because that is how the Windows patch labeled it.
-const labelFix = {
-  'settings.locale.en-US': 'English',
-  'sidebar.settings.locale.en-US': 'English',
-  'settings.locale.zh-CN': 'Русский',
-  'sidebar.settings.locale.zh-CN': 'Русский',
-};
 let applied = 0;
 const newM = {};
-for (const [k, v] of Object.entries(zhValues)) {
-  if (Object.prototype.hasOwnProperty.call(labelFix, k)) {
-    newM[k] = labelFix[k];
-    applied++;
-    continue;
-  }
+for (const [k, v] of Object.entries(enValues)) {
   const ru = translations[k];
   newM[k] = ru !== undefined && tokens(ru) === tokens(v) ? ru : v;
   if (newM[k] === ru) applied++;
@@ -189,16 +171,16 @@ const rebuilt = Object.entries(newM).map(([k, v]) => '"' + k + '":`' + v + '`').
 {
   let count = 0;
   for (const m of rebuilt.matchAll(entryRe)) count++;
-  if (count !== Object.keys(zhValues).length || count < 100) { console.error('Пересборка каталога теряет ключи; прерывание.'); process.exit(1); }
+  if (count !== Object.keys(enValues).length || count < 100) { console.error('Пересборка каталога теряет ключи; прерывание.'); process.exit(1); }
 }
 const newIntlSrc = catSrc.slice(0, openIdx + 1) + rebuilt + catSrc.slice(closeIdx);
-console.log('Каталог zh-CN: переведено ' + applied + ' из ' + Object.keys(zhValues).length + ' строк');
+console.log('Каталог интерфейса: переведено ' + applied + ' из ' + Object.keys(enValues).length + ' строк');
 
 // ---------- native menu ----------
 function translateQuotedMap(srcText, dict) {
-  const start = srcText.indexOf('"zh-CN":{');
+  const start = srcText.indexOf('"en-US":{');
   if (start === -1) return { text: srcText, translated: 0, total: 0 };
-  let i = start + '"zh-CN":'.length, depth = 0, end = -1, inStr = false, esc = false;
+  let i = start + '"en-US":'.length, depth = 0, end = -1, inStr = false, esc = false;
   for (; i < srcText.length; i++) {
     const c = srcText[i];
     if (inStr) { if (esc) esc = false; else if (c === '\\') esc = true; else if (c === '"') inStr = false; continue; }
@@ -231,7 +213,7 @@ let stylesChunk = null;
 })(header, '');
 let stylesText = readFile(stylesChunk).toString('utf8');
 const M4_FIND = 'function m4(e,t){let n=t?.startsWith(`zh`)??!1,r=n?e.cn:e.en,i=n?e.en:e.cn;return r?.trim()||i?.trim()||``}';
-const M4_REP = `function m4(e,t){let n=t?.startsWith(\`zh\`)??!1,r=n?e.cn:e.en,i=n?e.en:e.cn;if(n&&i){let _x=i.trim();if(_x){let _m={"Standup Git Summary":"Сводка Git для стендапа","CI Failures & Flaky Test Report":"Отчёт по падениям CI и нестабильным тестам","Documentation sync check":"Проверка актуальности документации","Morning dev brief":"Утренняя сводка разработчику","Risk scan":"Скан рисков","Release brief":"Релизная сводка"};if(_m[_x])return _m[_x];let _p=[["Summarize this week's git activity into a Friday standup","Соберёт git-активность недели к пятничному стендапу: ключевые коммиты, влитые PR и что изменилось — коротко и по делу."],["Scan recent CI runs, list failing and flaky tests","Просмотрит недавние прогоны CI, перечислит упавшие и нестабильные тесты с вероятными причинами и предложит исправления по важности."],["Using the current implementation and recent commits as evidence","Сверит README, документацию и конфигурации с фактическим кодом и свежими коммитами, отметит расхождения."],["Summarize commits, module changes, CI status, and follow-ups since the previous workday","Резюмирует коммиты, изменения модулей, статус CI и незакрытые вопросы с прошлого рабочего дня — в заданный лимит объёма."],["Inspect code changes from the last 24 hours for high-confidence risks","Изучит изменения кода за последние 24 часа и найдёт риски: сбои рантайма, потерю данных, проблемы безопасности."],["Organize PRs and commits merged this week","Разложит PR и коммиты недели по разделам: фичи, исправления, улучшения опыта и инженерия."],["Compare code, configuration, API, and documentation changes from the last seven days","Сравнит изменения кода, конфигураций, API и документации за семь дней и подсветит расхождения."]];for(let _z of _p){if(_x.startsWith(_z[0]))return _z[1]}}}return r?.trim()||i?.trim()||\`\`}`;
+const M4_REP = `function m4(e,t){let n=t?.startsWith(\`zh\`)??!1,r=n?e.cn:e.en,i=n?e.en:e.cn;if(!n&&r){let _x=r.trim();if(_x){let _m={"Standup Git Summary":"Сводка Git для стендапа","CI Failures & Flaky Test Report":"Отчёт по падениям CI и нестабильным тестам","Documentation sync check":"Проверка актуальности документации","Morning dev brief":"Утренняя сводка разработчику","Risk scan":"Скан рисков","Release brief":"Релизная сводка"};if(_m[_x])return _m[_x];let _p=[["Summarize this week's git activity into a Friday standup","Соберёт git-активность недели к пятничному стендапу: ключевые коммиты, влитые PR и что изменилось — коротко и по делу."],["Scan recent CI runs, list failing and flaky tests","Просмотрит недавние прогоны CI, перечислит упавшие и нестабильные тесты с вероятными причинами и предложит исправления по важности."],["Using the current implementation and recent commits as evidence","Сверит README, документацию и конфигурации с фактическим кодом и свежими коммитами, отметит расхождения."],["Summarize commits, module changes, CI status, and follow-ups since the previous workday","Резюмирует коммиты, изменения модулей, статус CI и незакрытые вопросы с прошлого рабочего дня — в заданный лимит объёма."],["Inspect code changes from the last 24 hours for high-confidence risks","Изучит изменения кода за последние 24 часа и найдёт риски: сбои рантайма, потерю данных, проблемы безопасности."],["Organize PRs and commits merged this week","Разложит PR и коммиты недели по разделам: фичи, исправления, улучшения опыта и инженерия."],["Compare code, configuration, API, and documentation changes from the last seven days","Сравнит изменения кода, конфигураций, API и документации за семь дней и подсветит расхождения."]];for(let _z of _p){if(_x.startsWith(_z[0]))return _z[1]}}}return r?.trim()||i?.trim()||\`\`}`;
 {
   // the helper's name and locals change between builds (m4, e4, ...) — match by shape
   const m4re = /function ([A-Za-z0-9_$]+)\(e,t\)\{let ([A-Za-z0-9_$]+)=t\?\.startsWith\(`zh`\)\?\?!1,([A-Za-z0-9_$]+)=\2\?e\.cn:e\.en,([A-Za-z0-9_$]+)=\2\?e\.en:e\.cn;return \3\?\.trim\(\)\|\|\4\?\.trim\(\)\|\|``\}/;
@@ -277,7 +259,7 @@ const POPUP_REP =
   (RU_DEBUG ? POPUP_HANDLER_DEBUG : POPUP_HANDLER) + '}catch{}if(n||l!==r)return;';
 {
   const parts = stylesText.split(POPUP_FIND);
-  if (false) {
+  if (parts.length === 2) {
     stylesText = parts.join(POPUP_REP);
     console.log('Серверные попапы (акции): перехват перевода применён');
   } else if (stylesText.includes('"Правила применения квоты"')) {
@@ -303,7 +285,7 @@ const POPUP_REP =
       else console.log('Серверные попапы (акции): перехват на месте, но структура обработчика не распознана');
     }
   } else {
-    console.log('Серверные попапы: оставлены без перевода, английские акции не меняются');
+    console.log('Серверные попапы (акции): точка перехвата не найдена — кампании останутся английскими');
   }
 }
 
@@ -346,12 +328,23 @@ const mainReplacements = [
   ['downloadingButton:"Downloading..."', 'downloadingButton:"Скачивание..."'],
   ['installingButton:"Installing..."', 'installingButton:"Установка..."'],
 ];
-console.log('Диалоги главного процесса: английский текст не менялся');
+let mainText = readFile(mainChunk).toString('utf8');
+let mainApplied = 0;
+for (const pair of mainReplacements) {
+  const find = pair[0];
+  const rep = pair[1];
+  const parts = mainText.split(find);
+  if (parts.length !== 2) continue;
+  mainText = parts.join(rep);
+  mainApplied++;
+}
+console.log('Диалоги главного процесса: переведено ' + mainApplied + ' из ' + mainReplacements.length + ' заготовок');
 
 // ---------- rebuild asar ----------
 const changed = new Map([
   [intlChunk, Buffer.from(newIntlSrc, 'utf8')],
   [menuChunk, Buffer.from(menuRes.text, 'utf8')],
+  [mainChunk, Buffer.from(mainText, 'utf8')],
   [stylesChunk, Buffer.from(stylesText, 'utf8')],
 ]);
 const newEntries = [];
